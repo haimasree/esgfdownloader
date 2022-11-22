@@ -1,0 +1,25 @@
+[project]
+name = "esgffilterer"
+version = "0.0.1"
+authors = [
+  { name="Haimasree Bhattacharya", email="haimasree.il@gmail.com" },
+]
+description = "Package for installing a command line tool to filter esgf wget files by year"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/haimasree/esgfdownloader"
+"Bug Tracker" = "https://github.com/haimasree/esgfdownloader/issues"
+
+[project.scripts]
+filter = "src.esgffilterbyyear:filter_by_year"
+
+
+[build-system]
+requires = ["hatchling", "click"]
+build-backend = "hatchling.build"
+
