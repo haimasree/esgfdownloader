@@ -18,7 +18,6 @@ classifiers = [
 [project.scripts]
 filter = "src.esgffilterbyyear:filter_by_year"
 
-
 [build-system]
 requires = ["hatchling", "click"]
 build-backend = "hatchling.build"
