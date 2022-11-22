@@ -1,13 +1,46 @@
 from pathlib import Path
+import re
 from typing import Optional
 
 import click
+
+START_PATTERN = "#These are the embedded files to be downloaded"
+END_PATTERN = "# ESG_HOME should point to the directory containing ESG credentials."
+STR_PATTERN = "esgf-data1.llnl.gov"
+
+
+def process_filtering(
+    stripped_line: str, original_line: str, start_year: int, end_year: int
+) -> str:
+    if not stripped_line:
+        return original_line
+    elif STR_PATTERN not in stripped_line:
+        return original_line
+    else:
+        return ""
 
 
 def filter_and_write(
     input_file: Path, output_file: Path, start_year: int, end_year: int
 ):
-    print("Entered a function")
+    with open(input_file, "r") as input_file_handle, open(
+        output_file, "w"
+    ) as output_file_handle:
+        match = False
+        for line in input_file_handle:
+            stripped_line = line.rstrip()
+            if stripped_line == START_PATTERN:
+                match = True
+                print("Starting the filtering process")
+            elif stripped_line == END_PATTERN:
+                match = False
+                print("Ending the filtering process")
+            if match:
+                output_file_handle.write(
+                    process_filtering(stripped_line, line, start_year, end_year)
+                )
+            else:
+                output_file_handle.write(line)
 
 
 @click.command()
@@ -29,14 +62,14 @@ def filter_by_year(
 ):
     input_file = Path(input_file)
     if output_file is None:
-        output_file = f"filtered-{input_file.stem}{input_file.suffixes[-1]}"
+        output_file = Path(f"filtered-{input_file.stem}{input_file.suffixes[-1]}")
     filter_and_write(
         input_file=input_file,
         output_file=output_file,
         start_year=start_year,
         end_year=end_year,
     )
-    print(f"Hello world with {input_file}, {output_file}, {start_year} and {end_year}")
+    print(f"Filtering {input_file}, {output_file}, {start_year} and {end_year}")
 
 
 if __name__ == "__main__":
