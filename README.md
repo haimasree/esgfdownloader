@@ -11,3 +11,9 @@ I'm only interested in 1979-2014, but cannot filter the years whithin the search
 And the site has reference to some downloading method that I haven't tried yet:
 (User Tutorials — ESGF User Support 0.0.0 documentation)
 [https://esgf.github.io/esgf-user-support/user_guide.html#download-data-using-globus-online]
+
+
+## Usage of the filter tool:
+
+1. `filter data/wget-20221026075853.sh -o data/output.sh 2014 2018`
+2. `filter data/wget-20221026075853.sh 2014 2018` # will output to  filtered-wget-20221026075853.sh
