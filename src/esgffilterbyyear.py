@@ -17,8 +17,14 @@ def process_filtering(
     elif STR_PATTERN not in stripped_line:
         return original_line
     else:
-        return ""
-
+        interval = stripped_line.split(' ')[0][-21:-4]
+        start, end = interval.split('-')
+        start = int(start[0:4])
+        end = int(end[0:4])
+        if start < start_year or end > end_year:
+            return "NOLINE"
+        else:
+            return original_line           
 
 def filter_and_write(
     input_file: Path, output_file: Path, start_year: int, end_year: int
@@ -36,9 +42,11 @@ def filter_and_write(
                 match = False
                 print("Ending the filtering process")
             if match:
-                output_file_handle.write(
-                    process_filtering(stripped_line, line, start_year, end_year)
-                )
+                output = process_filtering(stripped_line, line, start_year, end_year)
+                if output != "NOLINE":
+                    output_file_handle.write(line)
+                else:
+                    print(f"{stripped_line} is not part of the given years")
             else:
                 output_file_handle.write(line)
 
