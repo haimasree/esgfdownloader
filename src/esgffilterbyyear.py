@@ -1,5 +1,4 @@
 from pathlib import Path
-import re
 from typing import Optional
 
 import click
@@ -17,14 +16,15 @@ def process_filtering(
     elif STR_PATTERN not in stripped_line:
         return original_line
     else:
-        interval = stripped_line.split(' ')[0][-21:-4]
-        start, end = interval.split('-')
+        interval = stripped_line.split(" ")[0][-21:-4]
+        start, end = interval.split("-")
         start = int(start[0:4])
         end = int(end[0:4])
-        if start < start_year or end > end_year:
-            return "NOLINE"
+        if start >= start_year and end <= end_year:
+            return original_line
         else:
-            return original_line           
+            return "NOLINE"
+
 
 def filter_and_write(
     input_file: Path, output_file: Path, start_year: int, end_year: int
