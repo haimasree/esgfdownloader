@@ -17,7 +17,7 @@ dependencies = [ 'click' ]
 "Bug Tracker" = "https://github.com/haimasree/esgfdownloader/issues"
 
 [project.scripts]
-filter = "src.esgffilterbyyear:filter_by_year"
+filter = "src.esgffilterbyyear:filter_cli"
 
 [build-system]
 requires = ["hatchling"]

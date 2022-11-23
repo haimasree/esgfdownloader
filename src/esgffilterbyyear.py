@@ -8,7 +8,7 @@ END_PATTERN = "# ESG_HOME should point to the directory containing ESG credentia
 STR_PATTERN = "esgf-data1.llnl.gov"
 
 
-def process_filtering(
+def filter_by_year(
     stripped_line: str, original_line: str, start_year: int, end_year: int
 ) -> str:
     if not stripped_line:
@@ -42,7 +42,7 @@ def filter_and_write(
                 match = False
                 print("Ending the filtering process")
             if match:
-                output = process_filtering(stripped_line, line, start_year, end_year)
+                output = filter_by_year(stripped_line, line, start_year, end_year)
                 if output != "NOLINE":
                     output_file_handle.write(line)
                 else:
@@ -62,7 +62,7 @@ def filter_and_write(
 )
 @click.argument("start_year", required=True, type=click.INT)
 @click.argument("end_year", required=True, type=click.INT)
-def filter_by_year(
+def filter_cli(
     input_file: click.Path,
     output_file: Optional[click.Path],
     start_year: click.INT,
@@ -81,4 +81,4 @@ def filter_by_year(
 
 
 if __name__ == "__main__":
-    filter_by_year()
+    filter_cli()
