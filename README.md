@@ -14,5 +14,7 @@ python -m pip install .
 
 ## Usage of the filter tool:
 
-1. `filter data/wget-20221026075853.sh -o data/output.sh 2014 2018`
+1. `filter data/wget-20221026075853.sh -o data/output.sh 2014 2018` # will output to data/output.sh
 2. `filter data/wget-20221026075853.sh 2014 2018` # will output to  filtered-wget-20221026075853.sh
+
+You can use the output files as you would use the original wget files
