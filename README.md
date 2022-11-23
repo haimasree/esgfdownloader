@@ -1,7 +1,7 @@
 ## Installation instructions
 
 ### Clone 
-git clone https://github.com/haimasree/esgfdownloader.git
+```git clone https://github.com/haimasree/esgfdownloader.git```
 
 ### Virtual env package manager - conda
 ```
