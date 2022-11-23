@@ -5,6 +5,7 @@
 
 ### Virtual env package manager - conda
 ```
+cd esgfdownloader
 conda env create -f env.yml
 conda activate filteresgf
 python -m pip install .
