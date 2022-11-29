@@ -2,14 +2,15 @@ from pathlib import Path
 from typing import Optional
 
 import click
+import pandas as pd
 
 START_PATTERN = "#These are the embedded files to be downloaded"
 END_PATTERN = "# ESG_HOME should point to the directory containing ESG credentials."
-STR_PATTERN = "esgf-data1.llnl.gov"
+STR_PATTERN = "SHA256"
 
 
 def filter_by_year(
-    stripped_line: str, original_line: str, start_year: int, end_year: int
+    stripped_line: str, original_line: str, desired_interval: pd.Interval
 ) -> str:
     if not stripped_line:
         return original_line
@@ -20,7 +21,7 @@ def filter_by_year(
         start, end = interval.split("-")
         start = int(start[0:4])
         end = int(end[0:4])
-        if start >= start_year and end <= end_year:
+        if desired_interval.overlaps(pd.Interval(start, end, closed="both")):
             return original_line
         else:
             return "NOLINE"
@@ -29,6 +30,7 @@ def filter_by_year(
 def filter_and_write(
     input_file: Path, output_file: Path, start_year: int, end_year: int
 ):
+    desired_interval = pd.Interval(start_year, end_year, closed="both")
     with open(input_file, "r") as input_file_handle, open(
         output_file, "w"
     ) as output_file_handle:
@@ -42,7 +44,7 @@ def filter_and_write(
                 match = False
                 print("Ending the filtering process")
             if match:
-                output = filter_by_year(stripped_line, line, start_year, end_year)
+                output = filter_by_year(stripped_line, line, desired_interval)
                 if output != "NOLINE":
                     output_file_handle.write(line)
                 else:
