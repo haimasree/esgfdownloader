@@ -130,3 +130,6 @@ dmypy.json
 
 *.nc
 *.status
+
+data/
+filtered-*.sh
