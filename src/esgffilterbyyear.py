@@ -32,7 +32,7 @@ def filter_and_write(
 ):
     desired_interval = pd.Interval(start_year, end_year, closed="both")
     with open(input_file, "r") as input_file_handle, open(
-        output_file, "w"
+        output_file, "w", newline="\n"
     ) as output_file_handle:
         match = False
         for line in input_file_handle:
