@@ -9,19 +9,20 @@ START_PATTERN = 'download_files="$(cat <<EOF--dataset.file.url.chksum_type.chksu
 END_PATTERN = "EOF--dataset.file.url.chksum_type.chksum"
 STR_PATTERN = "SHA256"
 
+# TODO: Add a chunk version for files which can not be loaded into memory
 
 def split_and_write(
     input_file: Path, output_files: List[Path], number_of_splits: int
 ) -> None:
     with open(input_file, "r") as input_file_handle:
-        content = input_file_handle.read()
+        content = input_file_handle.read() # Assuming the file is large enough to be loaded into memory
     start_template = content.split(START_PATTERN)[0]
     urls = content.split(END_PATTERN)[
         1
     ]  # Not 0 because END_PATTERN is part of START_PATTERN
     urls = urls.split("\n")[
         1:-1
-    ]  # TODO: Not sure why there is an empty string at the begnining and end of the list
+    ]  # There is an empty string at the begnining and end of the list which will be added back later
     end_template = content.split(END_PATTERN)[2]
     print(f"Length of urls = {len(urls)}")
     url_sublist = np.array_split(urls, number_of_splits)
