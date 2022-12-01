@@ -1,48 +1,55 @@
-from typing import Optional, List
+import re
+from typing import List
 from pathlib import Path
 
+import numpy as np
 import click
 
 START_PATTERN = 'download_files="$(cat <<EOF--dataset.file.url.chksum_type.chksum'
-END_PATTERN = 'EOF--dataset.file.url.chksum_type.chksum'
+END_PATTERN = "EOF--dataset.file.url.chksum_type.chksum"
 STR_PATTERN = "SHA256"
 
-def split_and_write(input_file: Path, output_files: List[Path]) -> None:
+
+def split_and_write(
+    input_file: Path, output_files: List[Path], number_of_splits: int
+) -> None:
     with open(input_file, "r") as input_file_handle:
-        match = False
-        count = 0
-        for index, line in enumerate(input_file_handle):
-            stripped_line = line.rstrip()
-            if stripped_line == START_PATTERN:
-                count = index + 1 # +1 is to account that urls start from the next line
-                print("Starting the matching process")
-            elif stripped_line == END_PATTERN:
-                count = index - count # Technically its index-1-count+1 
-                print("Ending the matching process")
-                break
-    print(f"Number of urls = {count}")
-            # if match:
-            #     output = filter_by_year(stripped_line, line, desired_interval)
-            #     if output != "NOLINE":
-            #         output_file_handle.write(line)
-            #     else:
-            #         print(f"{stripped_line} is not part of the given years")
-            # else:
-            #     output_file_handle.write(line)
+        content = input_file_handle.read()
+    start_template = content.split(START_PATTERN)[0]
+    urls = content.split(END_PATTERN)[
+        1
+    ]  # Not 0 because END_PATTERN is part of START_PATTERN
+    urls = urls.split("\n")[
+        1:-1
+    ]  # TODO: Not sure why there is an empty string at the begnining and end of the list
+    end_template = content.split(END_PATTERN)[2]
+    print(f"Length of urls = {len(urls)}")
+    url_sublist = np.array_split(urls, number_of_splits)
+    assert len(url_sublist) == number_of_splits
+    for index in range(number_of_splits):
+        with open(output_files[index], "w", newline="\n") as output_file_handle:
+            output_file_handle.write(start_template)
+            output_file_handle.write(START_PATTERN)
+            output_file_handle.write("\n")
+            output_file_handle.write("\n".join(url_sublist[index]))
+            output_file_handle.write("\n")
+            output_file_handle.write(END_PATTERN)
+            output_file_handle.write(end_template)
 
-
-    
 
 @click.command()
 @click.argument("input_file", type=click.Path(exists=True, readable=True))
 @click.argument("number_of_splits", required=True, type=click.INT)
 def split_cli(input_file: click.Path, number_of_splits: click.INT):
     input_file = Path(input_file)
-    output_files = []
-    # output_files = [Path(f"filtered-{input_file.stem}-{n}{input_file.suffixes[-1]}").touch(exist_ok=True) for n in range(number_of_splits)]
+    output_files = [
+        Path(f"split-{input_file.stem}-{n}{input_file.suffixes[-1]}")
+        for n in range(number_of_splits)
+    ]
     split_and_write(
         input_file=input_file,
         output_files=output_files,
+        number_of_splits=number_of_splits,
     )
 
 
