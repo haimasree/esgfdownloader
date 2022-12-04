@@ -18,6 +18,7 @@ dependencies = [ 'click' ]
 
 [project.scripts]
 filter = "src.esgffilterbyyear:filter_cli"
+splitter = "src.splitter:split_cli"
 
 [build-system]
 requires = ["hatchling"]
