@@ -29,7 +29,7 @@ def filter_by_year(
 
 def filter_and_write(
     input_file: Path, output_file: Path, start_year: int, end_year: int
-):
+) -> None:
     desired_interval = pd.Interval(start_year, end_year, closed="both")
     with open(input_file, "r") as input_file_handle, open(
         output_file, "w", newline="\n"

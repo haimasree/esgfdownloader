@@ -55,7 +55,7 @@ def split_cli(
     input_filedir: click.Path,
     output_filedir: Optional[click.Path],
     number_of_splits: click.INT,
-):
+) -> None:
     input_filedir = Path(input_filedir)
     if output_filedir is None:
         output_filedir = input_filedir.parent / "split"

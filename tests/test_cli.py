@@ -26,5 +26,45 @@ def test_cli_correct_use_filter(runner):
     output_file = test_dir / "filtered" / "filtered-wget-test.sh"
     input_file = test_dir / "data" / "wget-test.sh"
     assert output_file.exists()
-    assert is_same(output_file, input_file)
+    assert is_same(input_file, output_file)
     output_file.unlink()
+
+def test_cli_correct_use_filter_customoutput(runner, tmp_path):
+    test_dir = Path(__file__).resolve().parent
+    output_dir = tmp_path / "result"
+    output_dir.mkdir()
+    result = runner.invoke(
+        esgffilterbyyear.filter_cli,
+        [
+            str(test_dir / "data"), 
+            "-o",
+            str(output_dir),
+            "1850", 
+            "2014"
+        ],
+    )
+    assert result.exit_code == 0
+    output_file = output_dir / "filtered-wget-test.sh"
+    input_file = test_dir / "data" / "wget-test.sh"
+    assert output_file.exists()
+    assert is_same(input_file, output_file)
+
+def test_cli_correct_use_filter_customoutput(runner, tmp_path):
+    test_dir = Path(__file__).resolve().parent
+    output_dir = tmp_path / "result"
+    output_dir.mkdir()
+    result = runner.invoke(
+        esgffilterbyyear.filter_cli,
+        [
+            str(test_dir / "data"), 
+            "-o",
+            str(output_dir),
+            "1850", 
+            "2014"
+        ],
+    )
+    assert result.exit_code == 0
+    output_file = output_dir / "filtered-wget-test.sh"
+    input_file = test_dir / "data" / "wget-test.sh"
+    assert output_file.exists()
+    assert is_same(input_file, output_file)

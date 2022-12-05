@@ -37,6 +37,16 @@ You can use the output files as you would use the original wget files
 py -m pip install .[tests]
 ```
 
+### Run the tests
+
+```
+pytest
+```
+
+### TODO:
+
+Add this to CI
+
 ## TODO:
 
 Combine both these tools
