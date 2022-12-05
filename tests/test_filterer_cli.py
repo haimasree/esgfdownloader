@@ -12,6 +12,7 @@ def runner():
 
 
 def get_parts(filename):
+    # TODO: Make this identical to the filter tool or make the filter tool identical to splitter
     with open(filename, "r") as input_file_handle:
         content = (
             input_file_handle.read()
@@ -109,3 +110,22 @@ def test_cli_correct_use_filter_match_result(runner, tmp_path):
     ]
     assert start_template == res_start_template
     assert end_template == res_end_template
+
+
+def test_cli_correct_use_split(runner):
+    test_dir = Path(__file__).resolve().parent
+    input_dir = test_dir / "data"
+    output_dir = test_dir / "split"
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "3"],
+    )
+    assert result.exit_code == 0
+    output_filenames = [
+        output_dir / f"split-wget-{pattern}-{n}.sh"
+        for n in range(3)
+        for pattern in ["20220725055633", "test"]
+    ]
+    for output_filename in output_filenames:
+        assert output_filename.exists()
+        output_filename.unlink()
