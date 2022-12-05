@@ -30,6 +30,13 @@ Splits the urls into n (almost) equal parts. Outputs n files which only differ i
 
 You can use the output files as you would use the original wget files
 
+## For running the tests:
+
+### Install test specific dependencies
+```
+py -m pip install .[tests]
+```
+
 ## TODO:
 
 Combine both these tools

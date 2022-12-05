@@ -12,6 +12,9 @@ classifiers = [
 ]
 dependencies = [ 'click' ] 
 
+[project.optional-dependencies]
+tests = [ 'pytest' ]
+
 [project.urls]
 "Homepage" = "https://github.com/haimasree/esgfdownloader"
 "Bug Tracker" = "https://github.com/haimasree/esgfdownloader/issues"
