@@ -1,6 +1,8 @@
 from click.testing import CliRunner
 from pathlib import Path
+
 import pytest
+import numpy as np
 
 from src import esgffilterbyyear, splitter
 
@@ -129,3 +131,48 @@ def test_cli_correct_use_split(runner):
     for output_filename in output_filenames:
         assert output_filename.exists()
         output_filename.unlink()
+
+
+def test_cli_correct_use_split_customoutput(runner, tmp_path):
+    test_dir = Path(__file__).resolve().parent
+    input_dir = test_dir / "data"
+    output_dir = tmp_path / "result"
+    output_dir.mkdir()
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-o", str(output_dir), "3"],
+    )
+    assert result.exit_code == 0
+    output_filenames = [
+        output_dir / f"split-wget-{pattern}-{n}.sh"
+        for n in range(3)
+        for pattern in ["20220725055633", "test"]
+    ]
+    for output_filename in output_filenames:
+        assert output_filename.exists()
+
+
+def test_cli_correct_use_split_match(runner, tmp_path):
+    test_dir = Path(__file__).resolve().parent
+    input_dir = test_dir / "data"
+    output_dir = tmp_path / "result"
+    output_dir.mkdir()
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-o", str(output_dir), "3"],
+    )
+    assert result.exit_code == 0
+    input_file = input_dir / "wget-20220725055633.sh"
+    output_filenames = [
+        output_dir / f"split-wget-20220725055633-{n}.sh" for n in range(3)
+    ]
+    input_start_template, input_urls, input_end_template = get_parts(input_file)
+    input_url_sublist = np.array_split(input_urls, 3)
+
+    for n in range(3):
+        output_start_template, output_urls, output_end_template = get_parts(
+            output_filenames[n]
+        )
+        assert output_start_template == input_start_template
+        assert output_end_template == input_end_template
+        assert output_urls == list(input_url_sublist[n])
