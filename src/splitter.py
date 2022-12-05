@@ -27,7 +27,6 @@ def split_and_write(
         1:-1
     ]  # There is an empty string at the begnining and end of the list which will be added back later
     end_template = content.split(END_PATTERN)[2]
-    print(f"Length of urls = {len(urls)}")
     url_sublist = np.array_split(urls, number_of_splits)
     assert len(url_sublist) == number_of_splits
     for index in range(number_of_splits):
