@@ -45,7 +45,7 @@ pytest
 
 ### TODO:
 
-Add this to CI
+Add the tests to CI
 
 ## TODO:
 
