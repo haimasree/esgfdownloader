@@ -14,6 +14,7 @@ def runner():
 
 
 def get_parts(filename):
+    # TODO: Make this a separate function in splitter.py
     # TODO: Make this identical to the filter tool or make the filter tool identical to splitter
     with open(filename, "r") as input_file_handle:
         content = (
@@ -176,3 +177,84 @@ def test_cli_correct_use_split_match(runner, tmp_path):
         assert output_start_template == input_start_template
         assert output_end_template == input_end_template
         assert output_urls == list(input_url_sublist[n])
+
+
+def test_filter_invalidcli(runner):
+    test_dir = Path(__file__).resolve().parent
+    input_dir = test_dir / "data"
+    invalid_input_dir = test_dir / "invalid"
+    result = runner.invoke(
+        esgffilterbyyear.filter_cli,
+        [],
+    )
+    assert result.exit_code == 2
+    assert "Missing argument 'INPUT_FILEDIR'" in result.output
+    result = runner.invoke(
+        esgffilterbyyear.filter_cli,
+        [ str(invalid_input_dir)],
+    )
+    assert result.exit_code == 2
+    assert "Error: Invalid value for 'INPUT_FILEDIR'" in result.output
+    result = runner.invoke(
+        esgffilterbyyear.filter_cli,
+        [ str(input_dir)],
+    )
+    assert result.exit_code == 2
+    assert "Missing argument 'START_YEAR'" in result.output
+    result = runner.invoke(
+        esgffilterbyyear.filter_cli,
+        [ str(input_dir), 
+        "2018"
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Missing argument 'END_YEAR'" in result.output
+    result = runner.invoke(
+        esgffilterbyyear.filter_cli,
+        [ str(input_dir), 
+        "2018",
+        "stringvalue"
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Invalid value for 'END_YEAR'" in result.output
+
+def test_split_invalidcli(runner):
+    test_dir = Path(__file__).resolve().parent
+    input_dir = test_dir / "data"
+    invalid_input_dir = test_dir / "invalid"
+    result = runner.invoke(
+        splitter.split_cli,
+        [],
+    )
+    assert result.exit_code == 2
+    assert "Missing argument 'INPUT_FILEDIR'" in result.output
+    result = runner.invoke(
+        splitter.split_cli,
+        [ str(invalid_input_dir)],
+    )
+    assert result.exit_code == 2
+    assert "Error: Invalid value for 'INPUT_FILEDIR'" in result.output
+    result = runner.invoke(
+        splitter.split_cli,
+        [ str(input_dir)],
+    )
+    assert result.exit_code == 2
+    assert "Missing argument 'NUMBER_OF_SPLITS'" in result.output
+    result = runner.invoke(
+        splitter.split_cli,
+        [ str(input_dir), 
+        "stringvalue"
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Invalid value for 'NUMBER_OF_SPLITS': 'stringvalue'" in result.output
+    result = runner.invoke(
+        splitter.split_cli,
+        [ str(input_dir), 
+        "2018",
+        "stringvalue"
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Got unexpected extra argument (stringvalue)" in result.output
