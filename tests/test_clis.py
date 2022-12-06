@@ -115,13 +115,13 @@ def test_cli_correct_use_filter_match_result(runner, tmp_path):
     assert end_template == res_end_template
 
 
-def test_cli_correct_use_split(runner):
+def test_cli_correct_use_split_number(runner):
     test_dir = Path(__file__).resolve().parent
     input_dir = test_dir / "data"
     output_dir = test_dir / "split"
     result = runner.invoke(
         splitter.split_cli,
-        [str(input_dir), "3"],
+        [str(input_dir), "-ns", "3"],
     )
     assert result.exit_code == 0
     output_filenames = [
@@ -134,6 +134,26 @@ def test_cli_correct_use_split(runner):
         output_filename.unlink()
 
 
+def test_cli_correct_use_split_groups(runner):
+    test_dir = Path(__file__).resolve().parent
+    input_dir = test_dir / "data"
+    output_dir = test_dir / "split"
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-g1", "tas", "-g2", "ta"],
+    )
+    assert result.exit_code == 0
+    output_filenames = [
+        output_dir / f"split-wget-{pattern}_{group}-{n}.sh"
+        for n in range(3)
+        for group in ["tas", "ta"]
+        for pattern in ["20220725055633", "test"]
+    ]
+    # for output_filename in output_filenames:
+    # assert output_filename.exists()
+    # output_filename.unlink()
+
+
 def test_cli_correct_use_split_customoutput(runner, tmp_path):
     test_dir = Path(__file__).resolve().parent
     input_dir = test_dir / "data"
@@ -141,7 +161,7 @@ def test_cli_correct_use_split_customoutput(runner, tmp_path):
     output_dir.mkdir()
     result = runner.invoke(
         splitter.split_cli,
-        [str(input_dir), "-o", str(output_dir), "3"],
+        [str(input_dir), "-o", str(output_dir), "-ns", "3"],
     )
     assert result.exit_code == 0
     output_filenames = [
@@ -160,7 +180,7 @@ def test_cli_correct_use_split_match(runner, tmp_path):
     output_dir.mkdir()
     result = runner.invoke(
         splitter.split_cli,
-        [str(input_dir), "-o", str(output_dir), "3"],
+        [str(input_dir), "-o", str(output_dir), "-ns", "3"],
     )
     assert result.exit_code == 0
     input_file = input_dir / "wget-20220725055633.sh"
@@ -191,33 +211,29 @@ def test_filter_invalidcli(runner):
     assert "Missing argument 'INPUT_FILEDIR'" in result.output
     result = runner.invoke(
         esgffilterbyyear.filter_cli,
-        [ str(invalid_input_dir)],
+        [str(invalid_input_dir)],
     )
     assert result.exit_code == 2
     assert "Error: Invalid value for 'INPUT_FILEDIR'" in result.output
     result = runner.invoke(
         esgffilterbyyear.filter_cli,
-        [ str(input_dir)],
+        [str(input_dir)],
     )
     assert result.exit_code == 2
     assert "Missing argument 'START_YEAR'" in result.output
     result = runner.invoke(
         esgffilterbyyear.filter_cli,
-        [ str(input_dir), 
-        "2018"
-        ],
+        [str(input_dir), "2018"],
     )
     assert result.exit_code == 2
     assert "Missing argument 'END_YEAR'" in result.output
     result = runner.invoke(
         esgffilterbyyear.filter_cli,
-        [ str(input_dir), 
-        "2018",
-        "stringvalue"
-        ],
+        [str(input_dir), "2018", "stringvalue"],
     )
     assert result.exit_code == 2
     assert "Invalid value for 'END_YEAR'" in result.output
+
 
 def test_split_invalidcli(runner):
     test_dir = Path(__file__).resolve().parent
@@ -231,30 +247,21 @@ def test_split_invalidcli(runner):
     assert "Missing argument 'INPUT_FILEDIR'" in result.output
     result = runner.invoke(
         splitter.split_cli,
-        [ str(invalid_input_dir)],
+        [str(invalid_input_dir)],
     )
     assert result.exit_code == 2
     assert "Error: Invalid value for 'INPUT_FILEDIR'" in result.output
     result = runner.invoke(
         splitter.split_cli,
-        [ str(input_dir)],
+        [str(input_dir), "-ns"],
     )
     assert result.exit_code == 2
-    assert "Missing argument 'NUMBER_OF_SPLITS'" in result.output
+    assert "Error: Option '-ns' requires an argument" in result.output
     result = runner.invoke(
         splitter.split_cli,
-        [ str(input_dir), 
-        "stringvalue"
-        ],
+        [str(input_dir), "-ns", "stringvalue"],
     )
     assert result.exit_code == 2
-    assert "Invalid value for 'NUMBER_OF_SPLITS': 'stringvalue'" in result.output
-    result = runner.invoke(
-        splitter.split_cli,
-        [ str(input_dir), 
-        "2018",
-        "stringvalue"
-        ],
+    assert (
+        "Invalid value for '--number_of_splits' / '-ns': 'stringvalue'" in result.output
     )
-    assert result.exit_code == 2
-    assert "Got unexpected extra argument (stringvalue)" in result.output
