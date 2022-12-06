@@ -127,7 +127,7 @@ def test_cli_correct_use_split_number(runner):
     output_filenames = [
         output_dir / f"split-wget-{pattern}-{n}.sh"
         for n in range(3)
-        for pattern in ["20220725055633", "test"]
+        for pattern in ["20220725055633", "test", "mpilr_r30_hist"]
     ]
     for output_filename in output_filenames:
         assert output_filename.exists()
@@ -144,14 +144,54 @@ def test_cli_correct_use_split_groups(runner):
     )
     assert result.exit_code == 0
     output_filenames = [
-        output_dir / f"split-wget-{pattern}_{group}-{n}.sh"
-        for n in range(3)
+        output_dir / f"split-wget-{pattern}-{group}.sh"
         for group in ["tas", "ta"]
-        for pattern in ["20220725055633", "test"]
+        for pattern in ["20220725055633", "test", "mpilr_r30_hist"]
     ]
-    # for output_filename in output_filenames:
-    # assert output_filename.exists()
-    # output_filename.unlink()
+    for output_filename in output_filenames:
+        assert output_filename.exists()
+        output_filename.unlink()
+
+
+def test_cli_correct_use_split_groups_customoutput_match(runner, tmp_path):
+    test_dir = Path(__file__).resolve().parent
+    input_dir = test_dir / "data" / "splitgroup"
+    output_dir = tmp_path / "result"
+    output_dir.mkdir()
+
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-o", str(output_dir), "-g1", "vas", "-g2", "va", "-g2", "ta"],
+    )
+    assert result.exit_code == 0
+    output_filenames = [
+        output_dir / f"split-wget-{pattern}-{group}.sh"
+        for group in ["vas", "va_ta"]
+        for pattern in ["mpilr_r30_hist"]
+    ]
+    input_file = input_dir / "wget-mpilr_r30_hist.sh"
+    input_start_template, input_urls, input_end_template = get_parts(input_file)
+
+    for index, output_filename in enumerate(output_filenames):
+        output_start_template, output_urls, output_end_template = get_parts(
+            output_filename
+        )
+        assert output_start_template == input_start_template
+        assert output_end_template == input_end_template
+        if index == 0:
+            assert output_urls == [
+                "'vas_day_MPI-ESM1-2-LR_historical_r30i1p1f1_gn_18500101-18691231.nc' 'http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r30i1p1f1/day/zg/gn/v20210901/vas_day_MPI-ESM1-2-LR_historical_r30i1p1f1_gn_18500101-18691231.nc' 'SHA256' '6db5f6845de25b2787b219b466b46d87facdb183b7beed3a441ab4857bcb2e43'",
+                "'vas_day_MPI-ESM1-2-LR_historical_r30i1p1f1_gn_18700101-18891231.nc' 'http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r30i1p1f1/day/zg/gn/v20210901/vas_day_MPI-ESM1-2-LR_historical_r30i1p1f1_gn_18700101-18891231.nc' 'SHA256' 'd275f66ee9001e7779f496085d33bdf7f9e9705a9d4efd263c85877c50323264'",
+            ]
+        else:
+            assert output_urls == [
+                "'ta_day_MPI-ESM1-2-LR_historical_r30i1p1f1_gn_18500101-18691231.nc' 'http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r30i1p1f1/day/ta/gn/v20210901/ta_day_MPI-ESM1-2-LR_historical_r30i1p1f1_gn_18500101-18691231.nc' 'SHA256' 'a1f0af64d321b7e6d8a16d3048dbb2231334f676c9f71a3aedfc18dece135d06'",
+                "'ta_day_MPI-ESM1-2-LR_historical_r30i1p1f1_gn_18700101-18891231.nc' 'http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r30i1p1f1/day/ta/gn/v20210901/ta_day_MPI-ESM1-2-LR_historical_r30i1p1f1_gn_18700101-18891231.nc' 'SHA256' '4fadb01522d60760fa8988f59d238e571138440bc2a45148888c9dc34980e8de'",
+                "'va_day_MPI-ESM1-2-LR_historical_r30i1p1f1_gn_18700101-18891231.nc' 'http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r30i1p1f1/day/va/gn/v20210901/va_day_MPI-ESM1-2-LR_historical_r30i1p1f1_gn_18700101-18891231.nc' 'SHA256' '4d7fd7de3236723e55ff36d03059a327f261fd0b5ee86f5466956a10d41f5602'",
+            ]
+    for output_filename in output_filenames:
+        assert output_filename.exists()
+        output_filename.unlink()
 
 
 def test_cli_correct_use_split_customoutput(runner, tmp_path):
