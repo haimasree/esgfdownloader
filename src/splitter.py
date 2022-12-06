@@ -13,7 +13,32 @@ STR_PATTERN = "SHA256"
 def splitbygroup_and_write(
     input_file: Path, output_files: List[Path], group1: List, group2: List
 ) -> None:
-    pass
+    with open(input_file, "r") as input_file_handle:
+        content = (
+            input_file_handle.read()
+        )  # Assuming the file is large enough to be loaded into memory
+    start_template = content.split(START_PATTERN)[0]
+    urls = content.split(END_PATTERN)[
+        1
+    ]  # Not 0 because END_PATTERN is part of START_PATTERN
+    urls = urls.split("\n")[
+        1:-1
+    ]  # There is an empty string at the begnining and end of the list which will be added back later
+    end_template = content.split(END_PATTERN)[2]
+    group_url_list = [
+        [url for url in urls for variable in disjoint_group if f"{variable}_" in url]
+        for disjoint_group in [group1, group2]
+    ]
+
+    for index, group_urls in enumerate(group_url_list):
+        with open(output_files[index], "w", newline="\n") as output_file_handle:
+            output_file_handle.write(start_template)
+            output_file_handle.write(START_PATTERN)
+            output_file_handle.write("\n")
+            output_file_handle.write("\n".join(group_urls))
+            output_file_handle.write("\n")
+            output_file_handle.write(END_PATTERN)
+            output_file_handle.write(end_template)
 
 
 def splitbynumber_and_write(
@@ -83,10 +108,10 @@ def split_cli(
         output_filedir = Path(output_filedir)
     output_filedir.mkdir(exist_ok=True)
     for input_file in input_filedir.rglob("wget-*.sh"):
-        print(
-            f"Splitting {input_file} into {number_of_splits} files and writing to {output_filedir}"
-        )
         if group1 and group2:
+            print(
+                f"Splitting {input_file} into 2 files and writing to {output_filedir}"
+            )
             output_files = [
                 Path(
                     output_filedir
@@ -101,6 +126,9 @@ def split_cli(
                 group2=group2,
             )
         else:
+            print(
+                f"Splitting {input_file} into {number_of_splits} files and writing to {output_filedir}"
+            )
             output_files = [
                 Path(
                     output_filedir

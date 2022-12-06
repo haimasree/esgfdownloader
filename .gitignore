@@ -132,4 +132,4 @@ dmypy.json
 *.status
 
 tests/filtered
-tests/split
+tests/**/split
