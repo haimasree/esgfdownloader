@@ -89,15 +89,13 @@ def split_cli(
     group2: Optional[str],
 ) -> None:
     if not (group1 and group2) and number_of_splits is None:
-        click.echo(
+        raise click.BadParameter(
             "Please specify atleast two sets of variable groups or a number of split files"
         )
-        exit()
     elif (group1 and group2) and number_of_splits is not None:
-        click.echo(
-            "Please specify either two sets of variable groups or a number of split files"
+        raise click.BadParameter(
+            "Please specify either two sets of variable groups or a number of split files - not both"
         )
-        exit()
     if group1 and group2:
         group1 = list(group1)
         group2 = list(group2)

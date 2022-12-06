@@ -194,7 +194,7 @@ def test_cli_correct_use_split_groups_customoutput_match(runner, tmp_path):
         output_filename.unlink()
 
 
-def test_cli_correct_use_split_customoutput(runner, tmp_path):
+def test_cli_correct_use_split_number_customoutput(runner, tmp_path):
     test_dir = Path(__file__).resolve().parent
     input_dir = test_dir / "data"
     output_dir = tmp_path / "result"
@@ -213,7 +213,7 @@ def test_cli_correct_use_split_customoutput(runner, tmp_path):
         assert output_filename.exists()
 
 
-def test_cli_correct_use_split_match(runner, tmp_path):
+def test_cli_correct_use_split_number_match(runner, tmp_path):
     test_dir = Path(__file__).resolve().parent
     input_dir = test_dir / "data"
     output_dir = tmp_path / "result"
@@ -304,4 +304,22 @@ def test_split_invalidcli(runner):
     assert result.exit_code == 2
     assert (
         "Invalid value for '--number_of_splits' / '-ns': 'stringvalue'" in result.output
+    )
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-ns", "3", "-g1", "vas", "-g2", "ua", "-g2", "ta"],
+    )
+    assert result.exit_code == 2
+    assert (
+        "Invalid value: Please specify either two sets of variable groups or a number of split files - not both"
+        in result.output
+    )
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir)],
+    )
+    assert result.exit_code == 2
+    assert (
+        "Invalid value: Please specify atleast two sets of variable groups or a number of split files"
+        in result.output
     )
