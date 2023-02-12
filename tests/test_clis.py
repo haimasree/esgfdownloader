@@ -331,6 +331,26 @@ a number of split files or a number of links in a file"
     )
     result = runner.invoke(
         splitter.split_cli,
+        [str(input_dir), "-nl", "3", "-g1", "vas", "-g2", "ua", "-g2", "ta"],
+    )
+    assert result.exit_code == 2
+    assert (
+        "Invalid value: Please specify exactly one  of three split criterias - two sets of variable groups, \
+a number of split files or a number of links in a file"
+        in result.output
+    )
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-ns", "3", "-nl", "3"],
+    )
+    assert result.exit_code == 2
+    assert (
+        "Invalid value: Please specify exactly one  of three split criterias - two sets of variable groups, \
+a number of split files or a number of links in a file"
+        in result.output
+    )
+    result = runner.invoke(
+        splitter.split_cli,
         [str(input_dir)],
     )
     assert result.exit_code == 2
