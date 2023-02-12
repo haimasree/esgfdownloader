@@ -70,6 +70,41 @@ def splitbynumber_and_write(
             output_file_handle.write(end_template)
 
 
+def splitbylink_and_write(
+    input_file: Path, output_filedir: List[Path], number_of_links: int
+) -> None:
+    with open(input_file, "r") as input_file_handle:
+        content = (
+            input_file_handle.read()
+        )  # Assuming the file is large enough to be loaded into memory
+    start_template = content.split(START_PATTERN)[0]
+    urls = content.split(END_PATTERN)[
+        1
+    ]  # Not 0 because END_PATTERN is part of START_PATTERN
+    urls = urls.split("\n")[
+        1:-1
+    ]  # There is an empty string at the begnining and end of the list which will be added back later
+    end_template = content.split(END_PATTERN)[2]
+    print(len(urls))
+    url_sublists = np.array_split(
+        urls, range(number_of_links, len(urls), number_of_links)
+    )
+    print(len(url_sublists))
+    for index, url_sublist in enumerate(url_sublists):
+        output_file = Path(
+            output_filedir
+            / f"splitlink-{input_file.stem}-{index}{input_file.suffixes[-1]}"
+        )
+        with open(output_file, "w", newline="\n") as output_file_handle:
+            output_file_handle.write(start_template)
+            output_file_handle.write(START_PATTERN)
+            output_file_handle.write("\n")
+            output_file_handle.write("\n".join(url_sublist))
+            output_file_handle.write("\n")
+            output_file_handle.write(END_PATTERN)
+            output_file_handle.write(end_template)
+
+
 @click.command()
 @click.argument("input_filedir", type=click.Path(exists=True, readable=True))
 @click.option(
@@ -132,7 +167,7 @@ def split_cli(
                 group1=group1,
                 group2=group2,
             )
-        else:
+        elif number_of_splits is not None:
             print(
                 f"Splitting {input_file} into {number_of_splits} files and writing to {output_filedir}"
             )
@@ -147,6 +182,15 @@ def split_cli(
                 input_file=input_file,
                 output_files=output_files,
                 number_of_splits=number_of_splits,
+            )
+        else:  # number_of_links is not None
+            print(
+                f"Splitting {input_file} into files containing {number_of_links} links each and writing to {output_filedir}"
+            )
+            splitbylink_and_write(
+                input_file=input_file,
+                output_filedir=output_filedir,
+                number_of_links=number_of_links,
             )
 
 
