@@ -9,6 +9,7 @@ START_PATTERN = 'download_files="$(cat <<EOF--dataset.file.url.chksum_type.chksu
 END_PATTERN = "EOF--dataset.file.url.chksum_type.chksum"
 STR_PATTERN = "SHA256"
 
+
 # TODO: Add a chunk version for files which can not be loaded into memory
 def splitbygroup_and_write(
     input_file: Path, output_files: List[Path], group1: List, group2: List
@@ -79,22 +80,30 @@ def splitbynumber_and_write(
     required=False,
 )
 @click.option("--number_of_splits", "-ns", type=click.INT)
+@click.option("--number_of_links", "-nl", type=click.INT)
 @click.option("--group1", "-g1", multiple=True)
 @click.option("--group2", "-g2", multiple=True)
 def split_cli(
     input_filedir: click.Path,
     output_filedir: Optional[click.Path],
     number_of_splits: Optional[click.INT],
+    number_of_links: Optional[click.INT],
     group1: Optional[str],
     group2: Optional[str],
 ) -> None:
-    if not (group1 and group2) and number_of_splits is None:
+    if not (group1 and group2) and number_of_splits is None and number_of_links is None:
         raise click.BadParameter(
-            "Please specify atleast two sets of variable groups or a number of split files"
+            "Please specify atleast one of three split criterias - two sets of variable groups, \
+                a number of split files, a number of links in a file"
         )
-    elif (group1 and group2) and number_of_splits is not None:
+    elif [
+        (group1 and group2),
+        number_of_splits is not None,
+        number_of_links is not None,
+    ].count(True) > 1:
         raise click.BadParameter(
-            "Please specify either two sets of variable groups or a number of split files - not both"
+            "Please specify exactly one  of three split criterias - two sets of variable groups, \
+                a number of split files, a number of links in a file"
         )
     if group1 and group2:
         group1 = list(group1)
