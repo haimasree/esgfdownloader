@@ -31,6 +31,13 @@ There are currently two supported ways to split - splits the urls into n (almost
   - `splitter ./data -ns 3` 
     - create a directory called `split` if not present and output 3 files (number of desired splits provided by -ns flag) prefixed with `split` for each input file `wget-*.sh` in `data/`
 
+- Splits the urls into files where each file contains (a maximum of) n links. 
+  
+  - `splitter ./data -o ./result -nl 16`
+    - create a directory called `result` if not present and output files prefixed with `splitlink` for each input file `wget-*.sh` in `data/` where each file contains (a maximum of) 16 (number of desired links provided by -nl flag)  links. 
+  - `splitter ./data -nl 16` 
+    - create a directory called `split` if not present and output files prefixed with `splitlink` for each input file `wget-*.sh` in `data/` where each file contains (a maximum of) 16 (number of desired links provided by -nl flag)  links. 
+
 - Splits the urls into two groups based on variables. Outputs 2 files which only differ in the selection of the urls.
   
   - `splitter ./data -o ./result -g1 vas -g2 ta`
