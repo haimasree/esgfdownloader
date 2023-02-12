@@ -307,6 +307,20 @@ def test_split_invalidcli(runner):
     )
     result = runner.invoke(
         splitter.split_cli,
+        [str(input_dir), "-nl"],
+    )
+    assert result.exit_code == 2
+    assert "Error: Option '-nl' requires an argument" in result.output
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-nl", "stringvalue"],
+    )
+    assert result.exit_code == 2
+    assert (
+        "Invalid value for '--number_of_links' / '-nl': 'stringvalue'" in result.output
+    )
+    result = runner.invoke(
+        splitter.split_cli,
         [str(input_dir), "-ns", "3", "-g1", "vas", "-g2", "ua", "-g2", "ta"],
     )
     assert result.exit_code == 2
