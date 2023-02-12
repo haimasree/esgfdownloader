@@ -134,6 +134,24 @@ def test_cli_correct_use_split_number(runner):
         output_filename.unlink()
 
 
+def test_cli_correct_use_split_link(runner):
+    test_dir = Path(__file__).resolve().parent
+    input_dir = test_dir / "data" / "splitlink"
+    output_dir = test_dir / "data" / "split"
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-nl", "16"],
+    )
+    assert result.exit_code == 0
+    output_filenames = [output_dir / f"splitlink-wget-test-{n}.sh" for n in range(11)]
+    output_filenames = [
+        output_dir / f"splitlink-wget-20220725055633-{n}.sh" for n in range(9)
+    ]
+    for output_filename in output_filenames:
+        assert output_filename.exists()
+        output_filename.unlink()
+
+
 def test_cli_correct_use_split_groups(runner):
     test_dir = Path(__file__).resolve().parent
     input_dir = test_dir / "data"
@@ -194,6 +212,25 @@ def test_cli_correct_use_split_groups_customoutput_match(runner, tmp_path):
         output_filename.unlink()
 
 
+def test_cli_correct_use_split_link_customoutput(runner, tmp_path):
+    test_dir = Path(__file__).resolve().parent
+    input_dir = test_dir / "data" / "splitlink"
+    output_dir = tmp_path / "result"
+    output_dir.mkdir()
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-o", str(output_dir), "-nl", "16"],
+    )
+    assert result.exit_code == 0
+    output_filenames = [output_dir / f"splitlink-wget-test-{n}.sh" for n in range(11)]
+    output_filenames = [
+        output_dir / f"splitlink-wget-20220725055633-{n}.sh" for n in range(9)
+    ]
+    for output_filename in output_filenames:
+        assert output_filename.exists()
+        output_filename.unlink()
+
+
 def test_cli_correct_use_split_number_customoutput(runner, tmp_path):
     test_dir = Path(__file__).resolve().parent
     input_dir = test_dir / "data"
@@ -237,6 +274,32 @@ def test_cli_correct_use_split_number_match(runner, tmp_path):
         assert output_start_template == input_start_template
         assert output_end_template == input_end_template
         assert output_urls == list(input_url_sublist[n])
+
+
+def test_cli_correct_use_split_link_match(runner, tmp_path):
+    test_dir = Path(__file__).resolve().parent
+    input_dir = test_dir / "data"
+    output_dir = tmp_path / "result"
+    output_dir.mkdir()
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-o", str(output_dir), "-nl", "16"],
+    )
+    assert result.exit_code == 0
+    input_file = input_dir / "wget-20220725055633.sh"
+    output_filenames = [
+        output_dir / f"splitlink-wget-20220725055633-{n}.sh" for n in range(9)
+    ]
+    input_start_template, input_urls, input_end_template = get_parts(input_file)
+    input_url_sublist = np.array_split(input_urls, 3)
+    input_url_sublists = np.array_split(input_urls, range(16, len(input_urls), 16))
+    for index, input_url_sublist in enumerate(input_url_sublists):
+        output_start_template, output_urls, output_end_template = get_parts(
+            output_filenames[index]
+        )
+        assert output_start_template == input_start_template
+        assert output_end_template == input_end_template
+        assert output_urls == list(input_url_sublist)
 
 
 def test_filter_invalidcli(runner):
@@ -307,11 +370,46 @@ def test_split_invalidcli(runner):
     )
     result = runner.invoke(
         splitter.split_cli,
+        [str(input_dir), "-nl"],
+    )
+    assert result.exit_code == 2
+    assert "Error: Option '-nl' requires an argument" in result.output
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-nl", "stringvalue"],
+    )
+    assert result.exit_code == 2
+    assert (
+        "Invalid value for '--number_of_links' / '-nl': 'stringvalue'" in result.output
+    )
+    result = runner.invoke(
+        splitter.split_cli,
         [str(input_dir), "-ns", "3", "-g1", "vas", "-g2", "ua", "-g2", "ta"],
     )
     assert result.exit_code == 2
     assert (
-        "Invalid value: Please specify either two sets of variable groups or a number of split files - not both"
+        "Invalid value: Please specify exactly one  of three split criterias - two sets of variable groups, \
+a number of split files or a number of links in a file"
+        in result.output
+    )
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-nl", "3", "-g1", "vas", "-g2", "ua", "-g2", "ta"],
+    )
+    assert result.exit_code == 2
+    assert (
+        "Invalid value: Please specify exactly one  of three split criterias - two sets of variable groups, \
+a number of split files or a number of links in a file"
+        in result.output
+    )
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-ns", "3", "-nl", "3"],
+    )
+    assert result.exit_code == 2
+    assert (
+        "Invalid value: Please specify exactly one  of three split criterias - two sets of variable groups, \
+a number of split files or a number of links in a file"
         in result.output
     )
     result = runner.invoke(
@@ -319,7 +417,4 @@ def test_split_invalidcli(runner):
         [str(input_dir)],
     )
     assert result.exit_code == 2
-    assert (
-        "Invalid value: Please specify atleast two sets of variable groups or a number of split files"
-        in result.output
-    )
+    assert "Usage: split-cli [OPTIONS] INPUT_FILEDIR" in result.output
