@@ -126,19 +126,24 @@ def split_cli(
     group1: Optional[str],
     group2: Optional[str],
 ) -> None:
-    if not (group1 and group2) and number_of_splits is None and number_of_links is None:
+    if (
+        len(group1) == 0
+        and len(group2) == 0
+        and number_of_splits is None
+        and number_of_links is None
+    ):
         raise click.BadParameter(
             "Please specify atleast one of three split criterias - two sets of variable groups, \
-                a number of split files, a number of links in a file"
+a number of split files or a number of links in a file"
         )
     elif [
-        (group1 and group2),
+        len(group1) > 0 and len(group2) > 0,
         number_of_splits is not None,
         number_of_links is not None,
     ].count(True) > 1:
         raise click.BadParameter(
             "Please specify exactly one  of three split criterias - two sets of variable groups, \
-                a number of split files, a number of links in a file"
+a number of split files or a number of links in a file"
         )
     if group1 and group2:
         group1 = list(group1)

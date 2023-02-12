@@ -325,7 +325,8 @@ def test_split_invalidcli(runner):
     )
     assert result.exit_code == 2
     assert (
-        "Invalid value: Please specify either two sets of variable groups or a number of split files - not both"
+        "Invalid value: Please specify exactly one  of three split criterias - two sets of variable groups, \
+a number of split files or a number of links in a file"
         in result.output
     )
     result = runner.invoke(
@@ -333,7 +334,4 @@ def test_split_invalidcli(runner):
         [str(input_dir)],
     )
     assert result.exit_code == 2
-    assert (
-        "Invalid value: Please specify atleast two sets of variable groups or a number of split files"
-        in result.output
-    )
+    assert "Usage: split-cli [OPTIONS] INPUT_FILEDIR" in result.output
