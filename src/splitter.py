@@ -85,11 +85,9 @@ def splitbylink_and_write(
         1:-1
     ]  # There is an empty string at the begnining and end of the list which will be added back later
     end_template = content.split(END_PATTERN)[2]
-    print(len(urls))
     url_sublists = np.array_split(
         urls, range(number_of_links, len(urls), number_of_links)
     )
-    print(len(url_sublists))
     for index, url_sublist in enumerate(url_sublists):
         output_file = Path(
             output_filedir

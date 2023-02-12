@@ -134,6 +134,24 @@ def test_cli_correct_use_split_number(runner):
         output_filename.unlink()
 
 
+def test_cli_correct_use_split_link(runner):
+    test_dir = Path(__file__).resolve().parent
+    input_dir = test_dir / "data" / "splitlink"
+    output_dir = test_dir / "data" / "split"
+    result = runner.invoke(
+        splitter.split_cli,
+        [str(input_dir), "-nl", "16"],
+    )
+    assert result.exit_code == 0
+    output_filenames = [output_dir / f"splitlink-wget-test-{n}.sh" for n in range(11)]
+    output_filenames = [
+        output_dir / f"splitlink-wget-20220725055633-{n}.sh" for n in range(9)
+    ]
+    for output_filename in output_filenames:
+        assert output_filename.exists()
+        output_filename.unlink()
+
+
 def test_cli_correct_use_split_groups(runner):
     test_dir = Path(__file__).resolve().parent
     input_dir = test_dir / "data"
