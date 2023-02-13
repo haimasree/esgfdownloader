@@ -47,14 +47,13 @@ def test_cli_correct_use_qc(runner):
     )
     assert result.exit_code == 0
     outputfilenames = [output_file.name for output_file in outputdir.rglob("*.*")]
-    assert sorted(outputfilenames) == sorted(
-        [
-            "uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141231.nc",
-            "uas_day_CanESM5_historical_r20i1p1f1_gn_18500101-20141231.nc",
-            "vas_day_CanESM5_historical_r19i1p1f1_gn_18500101-20141231.nc",
-            "vas_day_CanESM5_historical_r4i1p1f1_gn_18500101-20141231.nc",
-        ]
-    )
+    assert sorted(outputfilenames) == [
+        "uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141231.nc",
+        "uas_day_CanESM5_historical_r20i1p1f1_gn_18500101-20141231.nc",
+        "vas_day_CanESM5_historical_r19i1p1f1_gn_18500101-20141231.nc",
+        "vas_day_CanESM5_historical_r4i1p1f1_gn_18500101-20141231.nc",
+    ]
+
     for output_file in outputdir.rglob("*.*"):
         output_file.unlink()
     outputdir.rmdir()
@@ -76,14 +75,13 @@ def test_cli_correct_use_qc_customoutput(runner, tmp_path):
     )
     assert result.exit_code == 0
     outputfilenames = [output_file.name for output_file in outputdir.rglob("*.*")]
-    assert sorted(outputfilenames) == sorted(
-        [
-            "uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141231.nc",
-            "uas_day_CanESM5_historical_r20i1p1f1_gn_18500101-20141231.nc",
-            "vas_day_CanESM5_historical_r19i1p1f1_gn_18500101-20141231.nc",
-            "vas_day_CanESM5_historical_r4i1p1f1_gn_18500101-20141231.nc",
-        ]
-    )
+    assert sorted(outputfilenames) == [
+        "uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141231.nc",
+        "uas_day_CanESM5_historical_r20i1p1f1_gn_18500101-20141231.nc",
+        "vas_day_CanESM5_historical_r19i1p1f1_gn_18500101-20141231.nc",
+        "vas_day_CanESM5_historical_r4i1p1f1_gn_18500101-20141231.nc",
+    ]
+
     for output_file in outputdir.rglob("*.*"):
         output_file.unlink()
     outputdir.rmdir()
