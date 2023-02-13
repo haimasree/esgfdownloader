@@ -34,6 +34,22 @@ def qc_cli(
     else:
         outputdir = Path(outputdir)
     outputdir.mkdir(exist_ok=True)
+    uniquefilelist = {}
+    for inputdir in inputdirlist:
+        for input_file in inputdir.rglob("*.*"):
+            if input_file.name not in uniquefilelist:
+                uniquefilelist[input_file.name] = {
+                    "path": input_file.resolve(),
+                    "size": input_file.stat().st_size,
+                }
+            elif uniquefilelist[input_file.name]["size"] < input_file.stat().st_size:
+                uniquefilelist[input_file.name] = {
+                    "path": input_file.resolve(),
+                    "size": input_file.stat().st_size,
+                }
+
+    for item, val in uniquefilelist.items():
+        print(f"path = {val['path']}, size={val['size']}")
 
 
 if __name__ == "__main__":
