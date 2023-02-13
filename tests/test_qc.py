@@ -102,7 +102,9 @@ def test_cli_correct_use_qc_match(runner, tmp_path):
         ["-i", str(inputdirlist[0]), "-i", str(inputdirlist[1]), "-o", str(outputdir)],
     )
     assert result.exit_code == 0
-    outputfilenames = sorted([output_file.name for output_file in outputdir.rglob("*.*")])
+    outputfilenames = sorted(
+        [output_file.name for output_file in outputdir.rglob("*.*")]
+    )
 
     assert is_same(outputdir / outputfilenames[0], inputdirlist[1] / outputfilenames[0])
     assert is_same(outputdir / outputfilenames[1], inputdirlist[1] / outputfilenames[1])
