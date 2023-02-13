@@ -102,12 +102,12 @@ def test_cli_correct_use_qc_match(runner, tmp_path):
         ["-i", str(inputdirlist[0]), "-i", str(inputdirlist[1]), "-o", str(outputdir)],
     )
     assert result.exit_code == 0
-    outputfilenames = [output_file.name for output_file in outputdir.rglob("*.*")]
+    outputfilenames = sorted([output_file.name for output_file in outputdir.rglob("*.*")])
 
     assert is_same(outputdir / outputfilenames[0], inputdirlist[1] / outputfilenames[0])
     assert is_same(outputdir / outputfilenames[1], inputdirlist[1] / outputfilenames[1])
-    assert is_same(outputdir / outputfilenames[2], inputdirlist[0] / outputfilenames[2])
-    assert is_same(outputdir / outputfilenames[3], inputdirlist[1] / outputfilenames[3])
+    assert is_same(outputdir / outputfilenames[2], inputdirlist[1] / outputfilenames[2])
+    assert is_same(outputdir / outputfilenames[3], inputdirlist[0] / outputfilenames[3])
 
     assert not is_same(
         outputdir / outputfilenames[0], inputdirlist[0] / outputfilenames[0]
@@ -116,10 +116,10 @@ def test_cli_correct_use_qc_match(runner, tmp_path):
         outputdir / outputfilenames[1], inputdirlist[0] / outputfilenames[1]
     )
     assert not is_same(
-        outputdir / outputfilenames[2], inputdirlist[1] / outputfilenames[2]
+        outputdir / outputfilenames[2], inputdirlist[0] / outputfilenames[2]
     )
     assert not is_same(
-        outputdir / outputfilenames[3], inputdirlist[0] / outputfilenames[3]
+        outputdir / outputfilenames[3], inputdirlist[1] / outputfilenames[3]
     )
 
     for output_file in outputdir.rglob("*.*"):
