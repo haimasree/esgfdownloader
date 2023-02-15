@@ -46,8 +46,18 @@ There are currently two supported ways to split - splits the urls into n (almost
     - `splitter ./data -o ./result -g1 vas -g1 psl -g2 ta -g2 ua -g2 zg`
     - Suffix of the resulting files will be like so - `split-*-vas_psl.sh`, `split-*-ta_ua_zg.sh`
 
-
 You can use the output files as you would use the original wget files
+
+## Usage of the qc tool:
+
+Currently there is only one quality control tool available. If there are multiple directories with same file names and some of them have zero size, only the file is copied over which has the maximum non zero size. 
+
+```
+qc -i <input dir 1> -i <input dir 2> -i <input dir 3> -o <output dir>
+```
+
+The output directory will contain files which exist in input dir 1, 2 and 3 and of maximum size .
+
 
 ## For running the tests:
 
