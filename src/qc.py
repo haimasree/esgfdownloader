@@ -37,14 +37,14 @@ def qc_cli(
     outputdir.mkdir(exist_ok=True)
 
     allfilenames = [
-        [input_file.name for input_file in inputdir.rglob("*.*")]
+        [input_file.name for input_file in inputdir.rglob("*.nc")]
         for inputdir in inputdirlist
     ]
     common_filenames = set.intersection(*[set(filenames) for filenames in allfilenames])
 
     uniquefilelist = {}
     for inputdir in inputdirlist:
-        for input_file in inputdir.rglob("*.*"):
+        for input_file in inputdir.rglob("*.nc"):
             if input_file.name in common_filenames:
                 if input_file.name not in uniquefilelist:
                     uniquefilelist[input_file.name] = {
