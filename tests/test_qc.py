@@ -129,7 +129,6 @@ def test_cli_correct_use_qc_match(runner, tmp_path):
     outputdir.rmdir()
 
 
-
 def test_cli_correct_use_qc_copynonzerofilesonly(runner, tmp_path):
     test_dir = (
         Path(__file__).resolve().parent / "data" / "cmiphist_results_example25012023"
@@ -145,4 +144,7 @@ def test_cli_correct_use_qc_copynonzerofilesonly(runner, tmp_path):
         ["-i", str(inputdirlist[0]), "-i", str(inputdirlist[1]), "-o", str(outputdir)],
     )
     assert result.exit_code == 0
-    assert "No input folder contains non zero uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141230.nc" in result.output
+    assert (
+        "No input folder contains non zero uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141230.nc"
+        in result.output
+    )
