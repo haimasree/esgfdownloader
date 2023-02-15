@@ -50,8 +50,6 @@ copy over the non zero files with maximum size to qc"
         inputdirlist = list(inputdirlist)
     inputdirlist = [Path(inputdir) for inputdir in inputdirlist]
 
-    # TODO: Sort this logic out because both movedir and outputdir
-    # are getting created
     if movedir is not None:
         movedir = Path(movedir)
         movedir.mkdir(exist_ok=True)
