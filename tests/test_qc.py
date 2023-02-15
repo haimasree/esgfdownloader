@@ -19,7 +19,12 @@ def is_same(filename1, filename2):
 
 def test_qc_invalidcli(runner):
     test_dir = Path(__file__).resolve().parent
-    input_dir = test_dir / "data"
+    input_dir = (
+        Path(__file__).resolve().parent
+        / "data"
+        / "cmiphist_results_example25012023"
+        / "1"
+    )
     invalid_input_dir = test_dir / "invalid"
     result = runner.invoke(
         qc.qc_cli,
@@ -30,6 +35,49 @@ def test_qc_invalidcli(runner):
     result = runner.invoke(qc.qc_cli, ["-i", str(invalid_input_dir)])
     assert result.exit_code == 2
     assert "does not exist" in result.output
+    result = runner.invoke(
+        qc.qc_cli, ["-i", str(input_dir), "-o", test_dir, "-m", test_dir]
+    )
+    assert result.exit_code == 2
+    assert (
+        "Please specify only one option \
+- move zero size or smaller non zero size files \
+or copy over the non zero files with maximum size"
+        in result.output
+    )
+
+
+def test_cli_correct_use_qc_nomoveoutput(runner, tmp_path):
+    test_dir = (
+        Path(__file__).resolve().parent / "data" / "cmiphist_results_example25012023"
+    )
+    inputdirlist = [
+        test_dir / "1",
+        test_dir / "2",
+    ]
+    outputdir = test_dir / "qc"
+    outputdir.mkdir()
+    result = runner.invoke(
+        qc.qc_cli,
+        ["-i", str(inputdirlist[0]), "-i", str(inputdirlist[1])],
+    )
+    assert result.exit_code == 0
+    assert (
+        "Since no option is specified we are resorting to default - \
+copy over the non zero files with maximum size to qc"
+        in result.output
+    )
+    outputfilenames = [output_file.name for output_file in outputdir.rglob("*.nc")]
+    assert sorted(outputfilenames) == [
+        "uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141231.nc",
+        "uas_day_CanESM5_historical_r20i1p1f1_gn_18500101-20141231.nc",
+        "vas_day_CanESM5_historical_r19i1p1f1_gn_18500101-20141231.nc",
+        "vas_day_CanESM5_historical_r4i1p1f1_gn_18500101-20141231.nc",
+    ]
+
+    for output_file in outputdir.rglob("*.nc"):
+        output_file.unlink()
+    outputdir.rmdir()
 
 
 def test_cli_correct_use_qc_customoutput(runner, tmp_path):
