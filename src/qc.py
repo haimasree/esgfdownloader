@@ -55,10 +55,12 @@ copy over the non zero files with maximum size to qc"
     if movedir is not None:
         movedir = Path(movedir)
         movedir.mkdir(exist_ok=True)
-    elif movedir is None and outputdir is None:
-        outputdir = inputdirlist[0].parent / "qc"
+    else:
+        if outputdir is None:
+            outputdir = inputdirlist[0].parent / "qc"
         outputdir = Path(outputdir)
         outputdir.mkdir(exist_ok=True)
+
     allfilenames = [
         [input_file.name for input_file in inputdir.rglob("*.nc")]
         for inputdir in inputdirlist
@@ -87,15 +89,7 @@ copy over the non zero files with maximum size to qc"
                             "path": input_file.resolve(),
                             "size": input_file.stat().st_size,
                         }
-
-        # for filename, fileinfo in uniquefilelist.items():
-        #     if fileinfo["size"] == 0:
-        #         print(f"No input folder contains non zero {filename}")
-        #     else:
-        #         shutil.copyfile(fileinfo["path"], outputdir / filename)
-
     else:
-        uniquefilelist = {}
         for inputdir in inputdirlist:
             for input_file in inputdir.rglob("*.nc"):
                 if input_file.name in common_filenames:
