@@ -60,7 +60,10 @@ def qc_cli(
                     }
 
     for filename, fileinfo in uniquefilelist.items():
-        shutil.copyfile(fileinfo["path"], outputdir / filename)
+        if fileinfo["size"] == 0:
+            print(f"No input folder contains non zero {filename}")
+        else:
+            shutil.copyfile(fileinfo["path"], outputdir / filename)
 
 
 if __name__ == "__main__":
