@@ -46,7 +46,7 @@ def test_cli_correct_use_qc(runner):
         ["-i", str(inputdirlist[0]), "-i", str(inputdirlist[1])],
     )
     assert result.exit_code == 0
-    outputfilenames = [output_file.name for output_file in outputdir.rglob("*.*")]
+    outputfilenames = [output_file.name for output_file in outputdir.rglob("*.nc")]
     assert sorted(outputfilenames) == [
         "uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141231.nc",
         "uas_day_CanESM5_historical_r20i1p1f1_gn_18500101-20141231.nc",
@@ -74,7 +74,7 @@ def test_cli_correct_use_qc_customoutput(runner, tmp_path):
         ["-i", str(inputdirlist[0]), "-i", str(inputdirlist[1]), "-o", str(outputdir)],
     )
     assert result.exit_code == 0
-    outputfilenames = [output_file.name for output_file in outputdir.rglob("*.*")]
+    outputfilenames = [output_file.name for output_file in outputdir.rglob("*.nc")]
     assert sorted(outputfilenames) == [
         "uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141231.nc",
         "uas_day_CanESM5_historical_r20i1p1f1_gn_18500101-20141231.nc",
@@ -82,7 +82,7 @@ def test_cli_correct_use_qc_customoutput(runner, tmp_path):
         "vas_day_CanESM5_historical_r4i1p1f1_gn_18500101-20141231.nc",
     ]
 
-    for output_file in outputdir.rglob("*.*"):
+    for output_file in outputdir.rglob("*.nc"):
         output_file.unlink()
     outputdir.rmdir()
 
@@ -103,7 +103,7 @@ def test_cli_correct_use_qc_match(runner, tmp_path):
     )
     assert result.exit_code == 0
     outputfilenames = sorted(
-        [output_file.name for output_file in outputdir.rglob("*.*")]
+        [output_file.name for output_file in outputdir.rglob("*.nc")]
     )
 
     assert is_same(outputdir / outputfilenames[0], inputdirlist[1] / outputfilenames[0])
@@ -124,6 +124,25 @@ def test_cli_correct_use_qc_match(runner, tmp_path):
         outputdir / outputfilenames[3], inputdirlist[1] / outputfilenames[3]
     )
 
-    for output_file in outputdir.rglob("*.*"):
+    for output_file in outputdir.rglob("*.nc"):
         output_file.unlink()
     outputdir.rmdir()
+
+
+
+def test_cli_correct_use_qc_copynonzerofilesonly(runner, tmp_path):
+    test_dir = (
+        Path(__file__).resolve().parent / "data" / "cmiphist_results_example25012023"
+    )
+    inputdirlist = [
+        test_dir / "1",
+        test_dir / "2",
+    ]
+    outputdir = tmp_path / "result"
+    outputdir.mkdir()
+    result = runner.invoke(
+        qc.qc_cli,
+        ["-i", str(inputdirlist[0]), "-i", str(inputdirlist[1]), "-o", str(outputdir)],
+    )
+    assert result.exit_code == 0
+    assert "No input folder contains non zero uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141230.nc" in result.output
