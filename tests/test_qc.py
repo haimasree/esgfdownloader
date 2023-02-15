@@ -237,7 +237,8 @@ def test_cli_correct_use_qc_move(runner, tmp_path):
         "uas_day_CanESM5_historical_r20i1p1f1_gn_18500101-20141231.nc",
         "vas_day_CanESM5_historical_r19i1p1f1_gn_18500101-20141231.nc",
     ]
-    for item in outputfilenames:
-        shutil.move(movedir / Path(item), inputdirlist[0] / Path(item))
+    for output_file in movedir.rglob("*.nc"):
+        assert output_file.stat().st_size == 0
+        shutil.move(output_file, inputdirlist[0] / output_file.name)
 
     movedir.rmdir()
