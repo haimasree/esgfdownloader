@@ -2,6 +2,7 @@ from click.testing import CliRunner
 from pathlib import Path
 
 import pytest
+import shutil
 
 from src import qc
 
@@ -19,7 +20,12 @@ def is_same(filename1, filename2):
 
 def test_qc_invalidcli(runner):
     test_dir = Path(__file__).resolve().parent
-    input_dir = test_dir / "data"
+    input_dir = (
+        Path(__file__).resolve().parent
+        / "data"
+        / "cmiphist_results_example25012023"
+        / "1"
+    )
     invalid_input_dir = test_dir / "invalid"
     result = runner.invoke(
         qc.qc_cli,
@@ -30,9 +36,19 @@ def test_qc_invalidcli(runner):
     result = runner.invoke(qc.qc_cli, ["-i", str(invalid_input_dir)])
     assert result.exit_code == 2
     assert "does not exist" in result.output
+    result = runner.invoke(
+        qc.qc_cli, ["-i", str(input_dir), "-o", test_dir, "-m", test_dir]
+    )
+    assert result.exit_code == 2
+    assert (
+        "Please specify only one option \
+- move zero size or smaller non zero size files \
+or copy over the non zero files with maximum size"
+        in result.output
+    )
 
 
-def test_cli_correct_use_qc(runner):
+def test_cli_correct_use_qc_nomoveoutput(runner, tmp_path):
     test_dir = (
         Path(__file__).resolve().parent / "data" / "cmiphist_results_example25012023"
     )
@@ -41,11 +57,17 @@ def test_cli_correct_use_qc(runner):
         test_dir / "2",
     ]
     outputdir = test_dir / "qc"
+    outputdir.mkdir()
     result = runner.invoke(
         qc.qc_cli,
         ["-i", str(inputdirlist[0]), "-i", str(inputdirlist[1])],
     )
     assert result.exit_code == 0
+    assert (
+        "Since no option is specified we are resorting to default - \
+copy over the non zero files with maximum size to qc"
+        in result.output
+    )
     outputfilenames = [output_file.name for output_file in outputdir.rglob("*.nc")]
     assert sorted(outputfilenames) == [
         "uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141231.nc",
@@ -54,7 +76,7 @@ def test_cli_correct_use_qc(runner):
         "vas_day_CanESM5_historical_r4i1p1f1_gn_18500101-20141231.nc",
     ]
 
-    for output_file in outputdir.rglob("*.*"):
+    for output_file in outputdir.rglob("*.nc"):
         output_file.unlink()
     outputdir.rmdir()
 
@@ -148,3 +170,75 @@ def test_cli_correct_use_qc_copynonzerofilesonly(runner, tmp_path):
         "No input folder contains non zero uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141230.nc"
         in result.output
     )
+
+
+def test_cli_correct_use_qc_match(runner, tmp_path):
+    test_dir = (
+        Path(__file__).resolve().parent / "data" / "cmiphist_results_example25012023"
+    )
+    inputdirlist = [
+        test_dir / "1",
+        test_dir / "2",
+    ]
+    outputdir = tmp_path / "result"
+    outputdir.mkdir()
+    result = runner.invoke(
+        qc.qc_cli,
+        ["-i", str(inputdirlist[0]), "-i", str(inputdirlist[1]), "-o", str(outputdir)],
+    )
+    assert result.exit_code == 0
+    outputfilenames = sorted(
+        [output_file.name for output_file in outputdir.rglob("*.nc")]
+    )
+
+    assert is_same(outputdir / outputfilenames[0], inputdirlist[1] / outputfilenames[0])
+    assert is_same(outputdir / outputfilenames[1], inputdirlist[1] / outputfilenames[1])
+    assert is_same(outputdir / outputfilenames[2], inputdirlist[1] / outputfilenames[2])
+    assert is_same(outputdir / outputfilenames[3], inputdirlist[0] / outputfilenames[3])
+
+    assert not is_same(
+        outputdir / outputfilenames[0], inputdirlist[0] / outputfilenames[0]
+    )
+    assert not is_same(
+        outputdir / outputfilenames[1], inputdirlist[0] / outputfilenames[1]
+    )
+    assert not is_same(
+        outputdir / outputfilenames[2], inputdirlist[0] / outputfilenames[2]
+    )
+    assert not is_same(
+        outputdir / outputfilenames[3], inputdirlist[1] / outputfilenames[3]
+    )
+
+    for output_file in outputdir.rglob("*.nc"):
+        output_file.unlink()
+    outputdir.rmdir()
+
+
+def test_cli_correct_use_qc_move(runner, tmp_path):
+    test_dir = (
+        Path(__file__).resolve().parent / "data" / "cmiphist_results_example25012023"
+    )
+    inputdirlist = [
+        test_dir / "1",
+        test_dir / "2",
+    ]
+    movedir = tmp_path / "qcm"
+    movedir.mkdir()
+    result = runner.invoke(
+        qc.qc_cli,
+        ["-i", str(inputdirlist[0]), "-i", str(inputdirlist[1]), "-m", str(movedir)],
+    )
+    assert result.exit_code == 0
+    outputfilenames = sorted(
+        [output_file.name for output_file in movedir.rglob("*.nc")]
+    )
+    assert outputfilenames == [
+        "uas_day_CanESM5_historical_r17i1p1f1_gn_18500101-20141231.nc",
+        "uas_day_CanESM5_historical_r20i1p1f1_gn_18500101-20141231.nc",
+        "vas_day_CanESM5_historical_r19i1p1f1_gn_18500101-20141231.nc",
+    ]
+    for output_file in movedir.rglob("*.nc"):
+        assert output_file.stat().st_size == 0
+        shutil.move(output_file, inputdirlist[0] / output_file.name)
+
+    movedir.rmdir()

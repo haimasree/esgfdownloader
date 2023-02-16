@@ -50,13 +50,20 @@ You can use the output files as you would use the original wget files
 
 ## Usage of the qc tool:
 
-Currently there is only one quality control tool available. If there are multiple directories with same file names and some of them have zero size, only the file is copied over which has the maximum non zero size. 
+Currently there is only one quality control tool available. 
+If there are multiple directories with same file names and some of them have zero size, only the file is copied over which has the maximum non zero size. 
 
 ```
 qc -i <input dir 1> -i <input dir 2> -i <input dir 3> -o <output dir>
 ```
 
-The output directory will contain files which exist in input dir 1, 2 and 3 and of maximum size .
+The output directory will contain files which exist in input dir 1, 2 and 3 and of maximum size.
+
+As an additional option it is possible to move the zero (or less than maximum non zero size) files to a user specified folder. Ofcourse the remaining file with the mamximum non zero size will remain as is in its original folder.
+
+```
+qc -i <input dir 1> -i <input dir 2> -i <input dir 3> -m <move dir>
+```
 
 
 ## For running the tests:
